@@ -80,9 +80,10 @@
     <section class="bg-primary" id="mapcontain" >
         <div class="container">
             <div class="row">
-                <div class="col-lg-8 col-lg-offset-2 text-center"  id="googleMap" style="height:550px;">
+                <div class="col-lg-7 "  id="googleMap" style="height:550px;">
                     
                 </div>
+                <div id="capture" class="col-md-3" style="height:550px;background-color:lightblue;"></div>
             </div>
         </div>
     </section>
@@ -306,123 +307,74 @@
 
         $(document).ready(function(){
 
+
             navigator.geolocation.getCurrentPosition(show_map,geo_error);
 
             function geo_error() {
-
+                var src = "http://nzhistory.net.nz/locations.kml";
                 var   lats = -41.270376;
                 var   longs = 174.8886719;
 
                 var mapProp = {
                     center:new google.maps.LatLng(lats, longs),
                     zoom:11,
-
                     mapTypeId:google.maps.MapTypeId.ROADMAP,
                     mapTypeControl: false,
                 };
 
-                var geocoder = new google.maps.Geocoder();
+
+
+
                 var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
 
-                google.maps.event.addListener(map, 'click', function(e) {
-                    placeMarker(e.latLng);
-                });
-
-                $("#myModal").on("shown.bs.modal", function(e) {
-                    google.maps.event.trigger(map, "resize");
-                });
-
-                var marker;
-                function placeMarker(location)
-                {
-                    if ( marker ) {
-                        marker.setPosition(location);
-                    } else {
-                        marker = new google.maps.Marker({
-                            position: location,
-                            map: map
-                        });
-                    }
-                    getAddress(location);
-                    document.getElementById('audits_lat').value = location.lat();
-                    document.getElementById('audits_lng').value = location.lng();
+                loadKmlLayer(src,map);
+                function loadKmlLayer(src, map) {
+                    var kmlLayer = new google.maps.KmlLayer(src, {
+                        suppressInfoWindows: true,
+                        preserveViewport: false,
+                        map: map
+                    });
                 }
 
-                function getAddress(latLng) {
-                    geocoder.geocode( {'latLng': latLng},
-                            function(results, status) {
-                                if(status == google.maps.GeocoderStatus.OK) {
-                                    if(results[0]) {
-                                        document.getElementById("audits_street").value = results[0].formatted_address;
-                                    }
-                                    else {
-                                        document.getElementById("audits_street").value = "No results";
-                                    }
-                                }
-                                else {
-                                    document.getElementById("audits_street").value = status;
-                                }
-                            });
-                }
 
             }
 
             function show_map(position) {
+                var src = "http://nzhistory.net.nz/locations.kml";
                 var lats = position.coords.latitude;
                 var longs = position.coords.longitude;
 
                 var mapProp = {
-                    center:new google.maps.LatLng(lats, longs),
-                    zoom:18,
-
-                    mapTypeId:google.maps.MapTypeId.ROADMAP,
+                    center: new google.maps.LatLng(lats, longs),
+                    zoom: 18,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
                     mapTypeControl: false,
                 };
 
-                var geocoder = new google.maps.Geocoder();
-                var map = new google.maps.Map(document.getElementById("googleMap"),mapProp);
 
-                google.maps.event.addListener(map, 'click', function(e) {
-                    placeMarker(e.latLng);
-                });
+                var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+                console.log(src);
+                loadKmlLayer(src,map);
 
-                $("#myModal").on("shown.bs.modal", function(e) {
-                    google.maps.event.trigger(map, "resize");
-                });
-
-                var marker;
-
-                function placeMarker(location)
-                {
-                    if ( marker ) {
-                        marker.setPosition(location);
-                    } else {
-                        marker = new google.maps.Marker({
-                            position: location,
-                            map: map
-                        });
-                    }
-                    getAddress(location);
-                    document.getElementById('audits_lat').value = location.lat();
-                    document.getElementById('audits_lng').value = location.lng();
+                function loadKmlLayer(src, map) {
+                    var kmlLayer = new google.maps.KmlLayer(src, {
+                        center: new google.maps.LatLng(lats, longs),
+                        zoom:20,
+                        mapTypeId: google.maps.MapTypeId.ROADMAP,
+                        mapTypeControl: false,
+                        preserveViewport:true,
+                        suppressInfoWindows: true,
+                        map: map
+                    });
+                    google.maps.event.addListener(kmlLayer, 'click', function(event) {
+                        var content = event.featureData.infoWindowHtml;
+                        var testimonial = document.getElementById('capture');
+                        testimonial.innerHTML = content;
+                    });
                 }
 
-                function getAddress(latLng) {
-                    geocoder.geocode( {'latLng': latLng},
-                            function(results, status) {
-                                if(status == google.maps.GeocoderStatus.OK) {
-                                    if(results[0]) {
-                                        document.getElementById("audits_street").value = results[0].formatted_address;
-                                    }
-                                    else {
-                                        document.getElementById("audits_street").value = "No results";
-                                    }
-                                }
-                                else {
-                                    document.getElementById("audits_street").value = status;
-                                }
-                            });
-                }
+
+
             }
         });
 
