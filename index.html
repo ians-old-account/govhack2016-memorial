@@ -341,6 +341,7 @@
 
             function show_map(position) {
                 var src = "http://nzhistory.net.nz/locations.kml";
+
                 var lats = position.coords.latitude;
                 var longs = position.coords.longitude;
 
@@ -353,7 +354,7 @@
 
 
                 var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
-                console.log(src);
+
                 loadKmlLayer(src,map);
 
                 function loadKmlLayer(src, map) {
@@ -370,6 +371,17 @@
                         var content = event.featureData.infoWindowHtml;
                         var testimonial = document.getElementById('capture');
                         testimonial.innerHTML = content;
+                        console.log(urlify(event.featureData.description));
+
+                        function urlify(text) {
+                            var urlRegex = /(http?:\/\/[^\s]+)/g;
+                            return text.replace(urlRegex, function(url) {
+                                return '<a href="' + url + '">' + url + '</a>';
+                            })
+                            // or alternatively
+                            // return text.replace(urlRegex, '<a href="$1">$1</a>')
+                        }
+
                     });
                 }
 
